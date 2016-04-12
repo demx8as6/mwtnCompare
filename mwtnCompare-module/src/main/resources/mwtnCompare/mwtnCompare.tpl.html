@@ -9,11 +9,17 @@
  -->
 
 <h4>Network: {{networkName}}</h4>
-<!-- 
+<accordion close-others="oneAtATime"> 
+<accordion-group panel-class="panel-odl" is-open="debugInformation"> <accordion-heading>
+<i class="pull-left" ng-class="{'icon-angle-down': debugInformation.open, 'icon-angle-right': !debugInformation.open}"></i> <span>
+ {{ 'Debug information' | translate}}
+ <span></accordion-heading>
+
 <pre>{{ requiredLayerProtocols | json }}</pre>
 <pre>{{ radioSignalsIds | json }}</pre>
- -->
-<accordion close-others="oneAtATime"> <accordion-group panel-class="panel-odl" is-open="requiredNetworkElements.open"> <accordion-heading>
+
+</accordion-group> 
+<accordion-group panel-class="panel-odl" is-open="requiredNetworkElements.open"> <accordion-heading>
 <i class="pull-left" ng-class="{'icon-angle-down': requiredNetworkElements.open, 'icon-angle-right': !requiredNetworkElements.open}"></i> <span>
  {{ 'Required network elements' | translate}}
  <span></accordion-heading>
