@@ -10,15 +10,19 @@
 
 <h4>Network: {{networkName}}</h4>
 <accordion close-others="oneAtATime"> 
+
 <accordion-group panel-class="panel-odl" is-open="debugInformation"> <accordion-heading>
 <i class="pull-left" ng-class="{'icon-angle-down': debugInformation.open, 'icon-angle-right': !debugInformation.open}"></i> <span>
  {{ 'Debug information' | translate}}
  <span></accordion-heading>
 
+<pre>{{ actualData | json }}</pre>
+<pre>{{ referenceValues.network.networkElement[0] | json }}</pre>
 <pre>{{ requiredLayerProtocols | json }}</pre>
 <pre>{{ radioSignalsIds | json }}</pre>
 
-</accordion-group> 
+</accordion-group>
+
 <accordion-group panel-class="panel-odl" is-open="requiredNetworkElements.open"> <accordion-heading>
 <i class="pull-left" ng-class="{'icon-angle-down': requiredNetworkElements.open, 'icon-angle-right': !requiredNetworkElements.open}"></i> <span>
  {{ 'Required network elements' | translate}}
@@ -32,7 +36,7 @@
    <th>{{ 'IP address' | translate }}</th>
    <th>{{ 'NetConf port' | translate }}</th>
    <th>{{ 'User name' | translate }}</th>
-   <th>{{ 'Passwort' | translate }}</th>
+   <th>{{ 'Password' | translate }}</th>
    <th>{{ 'Radio signals' | translate }}</th>
    <th>{{ 'Connection status' | translate }}</th>
    <th>{{ 'Action' | translate }}</th>
@@ -69,7 +73,7 @@
 <table class="footable table table-hover">
  <thead>
   <tr>
-   <th>{{ 'Name' | translate }}</th>
+   <th>{{ 'Node-Id' | translate }}</th>
    <th>{{ 'IP address' | translate }}</th>
    <th>{{ 'NetConf port' | translate }}</th>
    <th>{{ 'Connection status' | translate }}</th>
@@ -83,11 +87,7 @@
   <td>{{ane['netconf-node-topology:port']}}</td>
   <td>{{ane['netconf-node-topology:connection-status']}}</td>
   <td>
-   <button class="btn btn-default" ng-click="message('changeNetworkElementName')">{{ 'Change network element name' | translate }}</button>
-   <span> </span>
-   <button class="btn btn-default" ng-click="message('connect')">{{ 'Connect' | translate }}</button>
-   <span> </span>
-   <button class="btn btn-default" ng-click="message('disconnect')">{{ 'Disconnect' | translate }}</button>
+   <button class="btn btn-default" ng-click="disconnect(ane['node-id'])" ng-hide="ane['node-id'] === 'controller-config'">{{ 'Disconnect' | translate }}</button>
   </td>
  </tr>
  </tbody>
@@ -95,8 +95,8 @@
 
 </accordion-group> <accordion-group panel-class="panel-odl" ng-repeat="ne in referenceValues.network.networkElement" is-open="ne.open"> <accordion-heading>
 <i class="pull-left" ng-class="{'icon-angle-down': ne.open, 'icon-angle-right': !ne.open}"></i> <span>Network element: </span> <b>"{{ne.name}}"</b> </accordion-heading> <accordion
- close-others="oneAtATime"> <accordion-group panel-class="panel-odl" is-open="ne.NetworkElement.open"> <accordion-heading>
-<i class="pull-left" ng-class="{'icon-angle-down': ne.NetworkElement.open, 'icon-angle-right': !ne.NetworkElement.open}"></i> <span>
+ close-others="oneAtATime"> <accordion-group panel-class="panel-odl" is-open="ne.NetworkElement[0].open"> <accordion-heading>
+<i class="pull-left" ng-class="{'icon-angle-down': ne.NetworkElement[0].open, 'icon-angle-right': !ne.NetworkElement[0].open}"></i> <span>
  {{ 'Network element' | translate}}
  <span></accordion-heading>
 
@@ -116,13 +116,13 @@
     </thead>
     <tbody>
      <tr
-      compare="{labelId:'Id', requiredValue:ne.NetworkElement.uuid, actualValue:ne.actualNetworkElementData.NetworkElement[0].uuid, missingActualValueLabelId: 'not connected', unit:''}"></tr>
+      compare="{labelId:'Id', requiredValue:ne.NetworkElement[0].uuid, actualValue:ne.actualNetworkElementData.NetworkElement[0].uuid, missingActualValueLabelId: 'not connected', unit:''}"></tr>
      <tr
-      compare="{labelId:'Name', requiredValue:ne.NetworkElement.nameList.value, actualValue:ne.actualNetworkElementData.NetworkElement[0].nameList[0].value, missingActualValueLabelId: 'not connected', unit:''}"></tr>
+      compare="{labelId:'Name', requiredValue:ne.NetworkElement[0].nameList[0].value, actualValue:ne.actualNetworkElementData.NetworkElement[0].nameList[0].value, missingActualValueLabelId: 'not connected', unit:''}"></tr>
      <tr
-      compare="{labelId:'Operational state', requiredValue:ne.NetworkElement.operationalState, actualValue:ne.actualNetworkElementData.NetworkElement[0].operationalState, missingActualValueLabelId: 'not connected', unit:''}"></tr>
+      compare="{labelId:'Operational state', requiredValue:ne.NetworkElement[0].operationalState, actualValue:ne.actualNetworkElementData.NetworkElement[0].operationalState, missingActualValueLabelId: 'not connected', unit:''}"></tr>
      <tr
-      compare="{labelId:'Number of LTPs', requiredValue:ne.NetworkElement._ltpRefList.length, actualValue:ne.actualNetworkElementData.NetworkElement[0]._ltpRefList.length, missingActualValueLabelId: 'not connected', unit:''}"></tr>
+      compare="{labelId:'Number of LTPs', requiredValue:ne.NetworkElement[0]._ltpRefList.length, actualValue:ne.actualNetworkElementData.NetworkElement[0]._ltpRefList.length, missingActualValueLabelId: 'not connected', unit:''}"></tr>
     </tbody>
    </table>
   </td>
@@ -233,9 +233,8 @@
     </td>
 
    </tr>
-   <table>
-
-    <table class="footable table table-hover">
+   </table>
+     <table class="footable table table-hover">
      <thead>
       <tr>
        <th>{{ 'Label' | translate }}</th>
@@ -245,22 +244,8 @@
        <th ng-show="mws.showDescriptions">{{ 'Description' | translate }}</th>
       </tr>
      </thead>
-     </tbody>
-     <tr ng-repeat="(key, value) in mws.structureConfiguration">
-      <td style="text-align: right;">{{ key | translate }}</td>
-      <td>
-       <b class="nowrap">{{value}}</b>
-      </td>
-      <td>
-       <span style="color: red">
-        <b class="nowrap"> not connected </b>
-       </span>
-      </td>
-      <td>{{ getUnit(key) }}</td>
-      <td style="max-width: 300px;" ng-show="mws.showDescriptions">
-       <p ng-repeat="p in getDescription(key)">{{ p }}</p>
-      </td>
-     </tr>
+     <tbody>
+      <tr ng-repeat="compare in mws.compares" compare="compare"></tr>
      </tbody>
      <tfoot>
       <tr>
@@ -273,7 +258,7 @@
         </button>
        </td>
       </tr>
-     </tfoot>
+     </tfoot> 
     </table>
 
     </accordion-group>
