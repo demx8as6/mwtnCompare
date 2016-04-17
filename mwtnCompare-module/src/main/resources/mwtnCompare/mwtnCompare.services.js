@@ -120,6 +120,7 @@ define(
                 };
 
                 service.connect = function(ne, callback) {
+                  console.info('Connect', ne.name, ne.ip, ne.port);
                   var url = [service.base,
                       'config/network-topology:network-topology/topology/topology-netconf/node/controller-config/yang-ext:mount/config:modules'].join('');
                   var request = {
@@ -132,10 +133,11 @@ define(
                     }
                   };
                   $http(request).then(function successCallback(response) {
-                    callback(response.data);
+                    console.log(ne.name, 'Mounting Point added');
+                    callback('ok', response.data);
                   }, function errorCallback(response) {
                     console.error(JSON.stringify(response));
-                    callback();
+                    callback('nok');
                   });
                 };
 
@@ -148,6 +150,7 @@ define(
                     url : url
                   };
                   $http(request).then(function successCallback(response) {
+                    console.log(neName, 'Mounting Point deleted');
                     callback(response.data);
                   }, function errorCallback(response) {
                     console.error(JSON.stringify(response));
@@ -178,15 +181,16 @@ define(
                     url : url
                   };
                   $http(request).then(function successCallback(response) {
+                    console.log(neId, 'MW_Container_Pac');
                     callback(response.data);
                   }, function errorCallback(response) {
-                    console.error(JSON.stringify(response));
+                    console.info('Could not get data from', neId);
+                    // console.error(JSON.stringify(response));
                     callback();
                   });
                 };
 
-                service.getActualMW_AirInterface_Pac = function(neId, lpId,
-                    callback) {
+                service.getActualMW_AirInterface_Pac = function(neId, lpId, callback) {
 // console.log('234', neId, lpId);
                   var url = [service.base,
                       'operational/network-topology:network-topology/topology/topology-netconf/node/',
@@ -198,6 +202,7 @@ define(
                     url : url
                   };
                   $http(request).then(function successCallback(response) {
+                    console.log(neId, lpId, 'MW_AirInterface_Pac');
                     callback(response.data);
                   }, function errorCallback(response) {
                     console.error('getActualMW_AirInterface_Pac');
@@ -206,8 +211,7 @@ define(
                   });
                 };
 
-                service.getActualMW_Structure_Pac = function(neId, lpId,
-                    callback) {
+                service.getActualMW_Structure_Pac = function(neId, lpId, callback) {
 
                   var url = [service.base,
                       'operational/network-topology:network-topology/topology/topology-netconf/node/',
@@ -219,6 +223,7 @@ define(
                     url : url
                   };
                   $http(request).then(function successCallback(response) {
+                    console.log(neId, lpId, 'MW_Structure_Pac');
                     callback(response.data);
                   }, function errorCallback(response) {
                     console.error(JSON.stringify(response));
@@ -226,8 +231,7 @@ define(
                   });
                 };
 
-                service.getActualMW_Container_Pac = function(neId, lpId,
-                    callback) {
+                service.getActualMW_Container_Pac = function(neId, lpId, callback) {
 
                   var url = [service.base,
                       'operational/network-topology:network-topology/topology/topology-netconf/node/',
@@ -239,6 +243,7 @@ define(
                     url : url
                   };
                   $http(request).then(function successCallback(response) {
+                    console.log(neId, lpId, 'MW_Container_Pac');
                     callback(response.data);
                   }, function errorCallback(response) {
                     console.error(JSON.stringify(response));
